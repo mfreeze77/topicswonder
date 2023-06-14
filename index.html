@@ -73,13 +73,13 @@
   <div id="start-timer-msg">This is a timed test. Let's Get Tropical!</div>
 
   <script>
-    var timerElement = document.getElementById('timer');
-    var formContainer = document.getElementById('form-container');
-    var googleForm = document.getElementById('google-form');
+    var timerElement;
+    var formContainer;
+    var googleForm;
     var startTime;
     var timerInterval;
     var formSubmitted = false;
-    var previousFormHeight = googleForm.clientHeight;
+    var previousFormHeight;
 
     function startTimer() {
       startTime = new Date().getTime();
@@ -104,35 +104,47 @@
       clearInterval(timerInterval);
     }
 
-    document.getElementById('start-timer-btn').addEventListener('click', function() {
-      document.getElementById('start-timer-btn').style.display = 'none';
-      document.getElementById('timer').style.display = 'block';
-      document.getElementById('form-container').style.display = 'block';
-      document.getElementById('start-timer-msg').style.display = 'none';
-      startTimer();
-    });
+    function handleFormSubmission() {
+      formSubmitted = true;
+      stopTimer();
+    }
 
-    window.addEventListener('message', function(event) {
-      if (event.origin === 'https://docs.google.com' && event.data === 'form-submitted') {
-        formSubmitted = true;
-        stopTimer();
-      }
-    });
+    $(document).ready(function() {
+      timerElement = document.getElementById('timer');
+      formContainer = document.getElementById('form-container');
+      googleForm = document.getElementById('google-form');
+      previousFormHeight = googleForm.clientHeight;
 
-    // Monitor the size of the Google Form using MutationObserver
-    var observer = new MutationObserver(function(mutationsList) {
-      for (var mutation of mutationsList) {
-        if (mutation.type === 'attributes' && mutation.attributeName === 'height') {
-          var currentFormHeight = googleForm.clientHeight;
-          if (Math.abs(currentFormHeight - previousFormHeight) > 50) {
-            stopTimer();
-            return;
+      $('#start-timer-btn').click(function() {
+        $('#start-timer-btn').hide();
+        $('#timer').show();
+        $('#form-container').show();
+        $('#start-timer-msg').hide();
+        startTimer();
+      });
+
+      // Monitor the size of the Google Form using MutationObserver
+      var observer = new MutationObserver(function(mutationsList) {
+        for (var mutation of mutationsList) {
+          if (mutation.type === 'attributes' && mutation.attributeName === 'height') {
+            var currentFormHeight = googleForm.clientHeight;
+            if (Math.abs(currentFormHeight - previousFormHeight) > 50) {
+              stopTimer();
+              return;
+            }
           }
         }
-      }
-    });
+      });
 
-    observer.observe(googleForm, { attributes: true });
+      observer.observe(googleForm, { attributes: true });
+
+      // Add event listener to the embedded form
+      window.addEventListener('message', function(event) {
+        if (event.origin === 'https://docs.google.com' && event.data === 'form-submitted') {
+          handleFormSubmission();
+        }
+      });
+    });
   </script>
 </body>
 </html>
