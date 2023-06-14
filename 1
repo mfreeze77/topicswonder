@@ -1,0 +1,31 @@
+<
+the timer when the Start Timer button is clicked
+      $('#start-timer-btn').click(function() {
+        $('#start-timer-btn').hide();
+        $('#timer').show();
+        startTimer();
+      });
+
+      // Log the time taken to a Google Sheet when the form is submitted
+      $('form').submit(function() {
+        var endTime = new Date().getTime();
+        var timeTaken = (endTime - startTime) / 1000; // Calculate time taken in seconds
+
+        $.ajax({
+          url: 'your-google-sheet-api-endpoint',
+          method: 'POST',
+          data: {
+            time_taken: timeTaken
+          },
+          success: function(response) {
+            console.log('Time taken logged successfully!');
+          },
+          error: function(error) {
+            console.error('Error logging time taken:', error);
+          }
+        });
+      });
+    });
+  </script>
+</body>
+</html>
