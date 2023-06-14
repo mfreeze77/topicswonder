@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Quiz Timer</title>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+  <!-- Custom HTML code to display the timer -->
+  <div id="timer">00:00</div>
+
+  <!-- Google Form embedded code -->
+  <iframe src="https://docs.google.com/forms/your-form-url/viewform?embedded=true" width="100%" height="800px" frameborder="0" marginheight="0" marginwidth="0">Loading...</iframe>
+
+  <script>
+    var timerElement = document.getElementById('timer');
+    var startTime;
+
+    function startTimer() {
+      startTime = new Date().getTime();
+      updateTimer();
+    }
+
+    function updateTimer() {
+      var currentTime = new Date().getTime();
+      var timeElapsed = currentTime - startTime;
+      var minutes = Math.floor(timeElapsed / 60000);
+      var seconds = Math.floor((timeElapsed % 60000) / 1000);
+      var timeString = ('0' + minutes).slice(-2) + ':' + ('0' + seconds).slice(-2);
+      timerElement.textContent = timeString;
+
+      // Update timer every second
+      setTimeout(updateTimer, 1000);
+    }
+
+    $(document).ready(function() {
+      $('#timer').hide(); // Hide the timer initially
+
+      // Show the timer and start the timer when the Start Timer button is clicked
+      $('#start-timer-btn').click(function() {
+        $('#start-timer-btn').hide();
+        $('#timer').show();
+        startTimer();
+      });
+
+      // Log the time taken to a Google Sheet when the form is submitted
+      $('form').submit(function() {
+        var endTime = new Date().getTime();
+        var timeTaken = (endTime - startTime) / 1000; // Calculate time taken in seconds
+
+        $.ajax({
+          url: 'your-google-sheet-api-endpoint',
+          method: 'POST',
+          data: {
+            time_taken: timeTaken
+          },
+          success: function(response) {
+            console.log('Time taken logged successfully!');
+          },
+          error: function(error) {
+            console.error('Error logging time taken:', error);
+          }
+        });
+      });
+    });
+  </script>
+</body>
+</html>
